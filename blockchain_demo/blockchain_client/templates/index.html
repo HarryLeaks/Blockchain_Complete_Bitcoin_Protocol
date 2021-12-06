@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Client</title>
+</head>
+<body>
+    <nav>
+        <div>
+            <a herf="#">Blockchain Client</a>
+            <div>
+                <ul>
+                    <li>
+                        <a href="/">Wallet Generator</a>
+                    </li>
+                    <li>
+                        <a href="/make/transaction">Make Transaction</a>
+                    </li>
+                    <li>
+                        <a href="/view/transactions">View Transactions</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div>
+            <h4>Wallet Generator</h4>
+            <p>Click on the button below generate your blockchain wallet</p>
+            <input type="button" value="Generate Wallet">
+    </div>
+
+    <br>
+    <label>Public Key: </label>
+    <div>
+        <textarea id="public_key" rows="5" style="width:300px" readonly></textarea>
+    </div>
+    <br>
+    <br>
+    <label>Private Key: </label>
+    <div>
+        <textarea id="private_key" rows="5" style="width:300px" readonly></textarea>
+    </div>
+
+    <div id = "warning" style="display:none">
+        <div role="alert">
+            IMPORTANT
+            <ul>
+                <li>Save your public and private keys. These keys cannot be recovered</li>
+                <li>Don't share your private key with anyone!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script>
+        $(function(){
+            $('input').click(function(){
+                $.ajax({
+                    url: '/wallet/new',
+                    type: 'GET',
+                    success: function(response){
+                        document.getElementById("public_key").innerHTML = response['public_key'];
+                        document.getElementById("private_key").innerHTML = response['private_key'];
+                        document.getElementById("warning").style.display = "block";
+                    },
+                    error: function(error){
+                        console.log(error);
+                    }
+                })
+            })
+        });
+    </script>
+</body>
+</html>

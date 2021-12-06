@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Frontend</title>
+</head>
+<body>
+    <nav>
+        <div>
+            <a herf="#">Blockchain Client</a>
+            <div>
+                <ul>
+                    <li>
+                        <a href="/">Wallet Generator</a>
+                    </li>
+                    <li>
+                        <a href="/make/transaction">Make Transaction</a>
+                    </li>
+                    <li>
+                        <a href="/view/transactions">View Transactions</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div>
+        <h4>View Transactions</h4>
+        <p>Enter blockchain node URL, and click on "View Transactions" button</p>
+    </div>
+    <div>
+        <label>Node URL:</label>
+        <div>
+            <textarea id="node_url" rows="1">http://127.0.0.1:5001</textarea>
+        </div>
+        <br>
+        <div>
+            <input type="button" id="view_transactions" value="View Transactions">
+        </div>
+        <br>
+    </div>
+
+    <br>
+
+    <div>
+        <table id="transactions_table" cellspacing="0" width="100%" border="1px solid black"></table>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.3/dataRender/ellipsis.js"></script>
+
+        <script>
+            let table = null;
+            $(function(){
+                $('#view_transactions').click(function(){
+                    $.ajax({
+                        url: document.getElementById("node_url").value + "/chain",
+                        type: 'GET',
+                        success: function(response){
+                            console.log(response);
+                            var transactions = [];
+                            count = 1;
+
+                            for(i = 1; i < response.length; i++){
+                                for(j = 0; j < response["chain"][i]["transactions"].length; j++){
+                                    var options = {year: "numeric", month: "short", day: "numeric", hour: "2-digit", second: "2-digit"};
+                                    var date = new Date(response["chain"][i]["timestamp"] * 1000);
+                                    var formattedDateTime = date.toLocaleTimeString("en-us", options);
+
+                                    transaction = [count, 
+                                                    response["chain"][i]["transactions"][j]["sender_public_key"],
+                                                    response["chain"][i]["transactions"][j]["recipient_public_key"],
+                                                    response["chain"][i]["transactions"][j]["amount"],
+                                                    formattedDateTime,
+                                                    response["chain"][i]["block_number"]
+                                                ];
+                                    transactions.push(transaction);
+                                    
+                                    /*var table = document.getElementById("transactions_table")
+                                    for(k = 0; k < transactions.length; k++){
+                                        var row = table.insertRow(0);
+                                        var cell1 = row.insertCell(0);
+                                        var cell2 = row.insertCell(1);
+                                        var cell3 = row.insertCell(2);
+                                        var cell4 = row.insertCell(3);
+                                        var cell5 = row.insertCell(4);
+                                        var cell6 = row.insertCell(5);
+                                        cell1.innerHTML = transactions[k][0];
+                                        cell2.innerHTML = transactions[k][1];
+                                        cell3.innerHTML = transactions[k][2];
+                                        cell4.innerHTML = transactions[k][3];
+                                        cell5.innerHTML = transactions[k][4];
+                                        cell6.innerHTML = transactions[k][5];
+                                    }*/
+                                    count += 1;
+                                }
+                            }
+                            table = $('#transactions_table').dataTable({
+                                "destroy": true,
+                                data: transactions,
+                                columns: [
+                                    {title: "#"},
+                                    {title: "Sender Public Key"},
+                                    {title: "Recipient Public Key"},
+                                    {title: "Amount"},
+                                    {title: "Timestamp"},
+                                    {title: "Block#"},
+                                ],
+                                columnDefs: [{targets: [1, 2, 3, 4, 5], render: $.fn.dataTable.render.ellipsis(25)}]
+                            });
+                        }
+                    });
+                });
+            });
+        </script>
+</body>
+</html>
